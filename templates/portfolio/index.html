@@ -1,0 +1,182 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero container">
+    <h1 class="reveal-up">{% if profile %}{{ profile.bio_title }}{% else %}Desenvolvedor Fullstack{% endif %}</h1>
+    <p class="reveal-up">{% if profile %}{{ profile.bio_description }}{% else %}Transformando lógica complexa em experiências digitais imersivas e fluidas.{% endif %}</p>
+</section>
+
+<div class="container">
+    <!-- Currently Developing Ticker -->
+    {% if profile.currently_developing %}
+    <div class="current-work reveal-up">
+        <span>Atualmente desenvolvendo: <strong>{{ profile.currently_developing }}</strong></span>
+    </div>
+    {% endif %}
+
+    <!-- About Me Section -->
+    <section id="about" class="about-section">
+        <div class="reveal-up photo-wrapper">
+            {% if profile.photo %}
+            <img src="{{ profile.photo.url }}" alt="{{ profile.name }}" class="about-photo">
+            {% else %}
+            <div style="width: 100%; aspect-ratio: 1/1; background: var(--bg-card); border-radius: 30px; display: flex; align-items: center; justify-content: center; color: var(--text-dim);">Sua Foto</div>
+            {% endif %}
+        </div>
+        <div class="reveal-up">
+            <h2 style="font-family: var(--font-heading); font-size: 3.5rem; line-height: 1; margin-bottom: 2rem;">Sobre Mim.</h2>
+            <p>{{ profile.about_me|linebreaksbr }}</p>
+
+            <div class="detail-box">
+                <div class="detail-item">
+                    <h4>Experiência & Tecnologias</h4>
+                    <p>{{ profile.experiences }}</p>
+                </div>
+                <div class="detail-item">
+                    <h4>Interesses</h4>
+                    <p>{{ profile.interests }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" style="padding: 10vh 0;">
+        <h2 class="reveal-up" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 3rem; color: var(--purple);">Skills & Expertise</h2>
+
+        <div class="skills-grid">
+            {% regroup skills by get_category_display as category_list %}
+            {% for category in category_list %}
+            <div class="skill-category reveal-up">
+                <h3>{{ category.grouper }}</h3>
+                <div class="skill-items">
+                    {% for skill in category.list %}
+                    <div class="skill-card mag-btn">
+                        <div class="skill-icon">
+                            <i class="{{ skill.icon_class }}"></i>
+                        </div>
+                        <div class="skill-info">
+                            <div class="skill-header">
+                                <span>{{ skill.name }}</span>
+                                <span>{{ skill.proficiency }}%</span>
+                            </div>
+                            <div class="skill-bar-bg">
+                                <div class="skill-bar-fill" style="width: 0;" data-width="{{ skill.proficiency }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Experience & Education Section -->
+    <section id="experience" style="padding: 10vh 0;">
+        <h2 class="reveal-up" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 4rem; color: var(--purple);">Trajectory</h2>
+        <div class="timeline-container">
+            {% regroup timeline by get_item_type_display as timeline_groups %}
+            {% for group in timeline_groups %}
+            <div class="timeline-group">
+                <h3 class="reveal-up">{{ group.grouper }}</h3>
+                <div class="timeline-items">
+                    {% for item in group.list %}
+                    <div class="timeline-item reveal-up">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content card-glass">
+                            <div class="timeline-header">
+                                <span class="timeline-period">{{ item.period }}</span>
+                                <span class="timeline-location"><i class="fas fa-map-marker-alt"></i> {{ item.location }}</span>
+                            </div>
+                            <h3>{{ item.title }}</h3>
+                            <h4>{{ item.organization }}</h4>
+                            <p>{{ item.description|linebreaksbr }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Selected Works -->
+    <section id="works" style="padding: 10vh 0;">
+        <h2 class="reveal-up" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 2rem; color: var(--purple);">Selected Works</h2>
+        <div class="bento-grid">
+            {% for project in projects %}
+            <article class="project-card reveal-up" 
+                     data-title="{{ project.title }}" 
+                     data-desc="{{ project.long_description|linebreaksbr }}" 
+                     data-tech="{{ project.technologies }}" 
+                     {% if project.thumbnail %}data-img="{{ project.thumbnail.url }}"{% endif %} 
+                     {% if project.github_link %}data-github="{{ project.github_link }}"{% endif %} 
+                     {% if project.live_link %}data-live="{{ project.live_link }}"{% endif %}>
+                {% if project.thumbnail %}
+                <img src="{{ project.thumbnail.url }}" alt="{{ project.title }}">
+                {% endif %}
+                <div class="project-info">
+                    <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">{{ project.title }}</h3>
+                    <p style="color: var(--text-dim); font-size: 0.9rem;">{{ project.short_description }}</p>
+                </div>
+            </article>
+            {% empty %}
+            <div class="reveal-up" style="grid-column: span 12; padding: 5rem; text-align: center; background: var(--bg-card); border-radius: 20px;">
+                <p>Ainda não há projetos cadastrados no portfólio.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<!-- Project Modal -->
+<div id="project-modal" class="modal-overlay">
+    <div class="modal-container">
+        <button class="modal-close mag-btn"><i class="fas fa-times"></i></button>
+        <div class="modal-content">
+            <div class="modal-image">
+                <img src="" alt="" id="modal-img">
+            </div>
+            <div class="modal-details">
+                <h2 id="modal-title" style="font-family: var(--font-heading); font-size: 3rem; margin-bottom: 1.5rem;"></h2>
+                <div id="modal-desc" style="margin-bottom: 2rem; color: var(--text-dim); line-height: 1.8;"></div>
+
+                <div class="modal-tech-box">
+                    <h4>Tecnologias</h4>
+                    <p id="modal-tech" style="color: var(--purple); font-weight: 500;"></p>
+                </div>
+
+                <div class="modal-links" style="margin-top: 3rem; display: flex; gap: 1.5rem;">
+                    <a href="#" id="modal-github" target="_blank" class="mag-btn" style="display: none;"><i class="fab fa-github"></i> GitHub</a>
+                    <a href="#" id="modal-live" target="_blank" class="mag-btn" style="display: none;"><i class="fas fa-external-link-alt"></i> Live Preview</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Section -->
+<footer id="contact" class="container" style="padding: 15vh 0 10vh;">
+    <div class="reveal-up" style="text-align: center; margin-bottom: 8vh;">
+        <h2 style="font-size: clamp(3rem, 8vw, 8rem); font-family: var(--font-heading); line-height: 1;">Gostou do meu<br><span style="color: var(--purple);">perfil?</span></h2>
+        <p style="color: var(--text-dim); margin-top: 2rem; font-size: 1.2rem;">Sinta-se à vontade para se conectar comigo através de qualquer uma das plataformas abaixo.</p>
+    </div>
+
+    <div class="reveal-up" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <div class="social-links" style="justify-content: center; margin-top: 1rem; gap: 3vw;">
+            {% if profile.github %}<a href="{{ profile.github }}" class="mag-btn" target="_blank" style="font-size: 2.5rem;"><i class="fab fa-github"></i></a>{% endif %}
+            {% if profile.linkedin %}<a href="{{ profile.linkedin }}" class="mag-btn" target="_blank" style="font-size: 2.5rem;"><i class="fab fa-linkedin"></i></a>{% endif %}
+            {% if profile.youtube %}<a href="{{ profile.youtube }}" class="mag-btn" target="_blank" style="font-size: 2.5rem;"><i class="fab fa-youtube"></i></a>{% endif %}
+            {% if profile.email %}<a href="mailto:{{ profile.email }}" class="mag-btn" style="font-size: 2.5rem;"><i class="fas fa-envelope"></i></a>{% endif %}
+        </div>
+
+        <div style="margin-top: 5rem; color: var(--text-dim); font-size: 0.95rem;">
+            {% if profile.phone %}<p style="font-size: 1.2rem; color: var(--text-main);"><i class="fas fa-phone" style="color: var(--purple); margin-right: 15px;"></i> {{ profile.phone }}</p>{% endif %}
+            <p style="margin-top: 2rem; opacity: 0.5;"> 2026 {{ profile.name|default:"Developer Portfólio" }}</p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
