@@ -1,10 +1,10 @@
 ﻿:root {
     --bg-dark: #0A0A0B;
     --bg-card: #151518;
-    --purple: #8B5CF6;
-    --purple-glow: rgba(139, 92, 246, 0.4);
+    --purple: #02a2ff;
+    --purple-glow: rgb(119, 121, 118);
     --text-main: #E2E8F0;
-    --text-dim: #94A3B8;
+    --text-dim: #d6d6d6;
     --transition-smooth: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     --font-heading: 'Outfit', sans-serif;
     --font-body: 'Inter', sans-serif;
@@ -31,7 +31,7 @@ body {
     /* Nebula Effect */
     background-image:
         radial-gradient(at 0% 0%, var(--purple-glow) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(30, 20, 50, 0.5) 0, transparent 50%);
+        radial-gradient(at 100% 100%, rgba(153, 161, 161, 0.712) 0, transparent 50%);
 }
 
 .container {
@@ -62,7 +62,7 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 8px;
-    color: white;
+    color: rgb(224, 39, 39);
     font-weight: bold;
     text-transform: uppercase;
 }
