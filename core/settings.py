@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-fallback-key-for-dev')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# Adicionado os domínios do Vercel e localhost por padrão de segurança
+# Adicionados os domínios do Vercel e localhost por padrão de segurança
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,.vercel.app').split(',')
 
 # Render / Vercel external URL
@@ -59,12 +59,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # ==============================================================================
-# CONFIGURAÇÃO DO BANCO DE DADOS (SUPABASE VIA NATIVO)
+# CONFIGURAÇÃO DO BANCO DE DADOS (SUPABASE NATIVO FORÇADO)
 # ==============================================================================
-DATABASE_CONN_URL = os.environ.get('DATABASE_URL', "postgresql://postgres:HunterxHunter90@db.wtoqdrvacljjqjpxhnya.supabase.co:5432/postgres")
+DATABASE_CONN_URL = os.environ.get('DATABASE_URL')
 
-try:
-    url = urlparse(DATABASE_CONN_URL)
+# Se estiver no Vercel ou a variável existir, força o PostgreSQL do Supabase
+if os.environ.get('VERCEL') or DATABASE_CONN_URL:
+    url_to_use = DATABASE_CONN_URL or "postgresql://postgres:HunterxHunter90@db.wtoqdrvacljjqjpxhnya.supabase.co:5432/postgres"
+    url = urlparse(url_to_use)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -78,7 +80,8 @@ try:
             }
         }
     }
-except Exception:
+else:
+    # Só usa o SQLite se estiver rodando localmente no seu PC SEM a variável configurada
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
