@@ -1,15 +1,17 @@
 import os
 from pathlib import Path
 from decouple import config
-import dj_database_url
+from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-fallback-key-for-dev')
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 
-# Render external URL
+# Adicionado os domínios do Vercel e localhost por padrão de segurança
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,.vercel.app').split(',')
+
+# Render / Vercel external URL
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -56,12 +58,34 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
-        conn_max_age=600
-    )
-}
+# ==============================================================================
+# CONFIGURAÇÃO DO BANCO DE DADOS (SUPABASE VIA NATIVO)
+# ==============================================================================
+DATABASE_CONN_URL = os.environ.get('DATABASE_URL', "postgresql://postgres:HunterxHunter90@db.wtoqdrvacljjqjpxhnya.supabase.co:5432/postgres")
+
+try:
+    url = urlparse(DATABASE_CONN_URL)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': url.path[1:],
+            'USER': url.username,
+            'PASSWORD': url.password,
+            'HOST': url.hostname,
+            'PORT': url.port or 5432,
+            'OPTIONS': {
+                'sslmode': 'require',
+            }
+        }
+    }
+except Exception:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+# ==============================================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
