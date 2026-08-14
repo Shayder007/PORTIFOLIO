@@ -59,36 +59,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # ==============================================================================
-# CONFIGURAÇÃO DO BANCO DE DADOS (SUPABASE NATIVO FORÇADO)
+# CONFIGURAÇÃO DO BANCO DE DADOS (SUPABASE POOLER OFICIAL)
 # ==============================================================================
-DATABASE_CONN_URL = os.environ.get('DATABASE_URL')
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres.wtoqdrvacljjqjpxhnya', # Formato correto com o ID do projeto
+        'PASSWORD': 'HunterxHunter90',
+        'HOST': '://supabase.com', # Servidor Pooler da AWS muito mais estável
+        'PORT': '6543', # Porta do pooler obrigatória
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
+    }
+}
+# ==============================================================================
 
-# Se estiver no Vercel ou a variável existir, força o PostgreSQL do Supabase
-if os.environ.get('VERCEL') or DATABASE_CONN_URL:
-    url_to_use = DATABASE_CONN_URL or "postgresql://postgres:HunterxHunter90@db.wtoqdrvacljjqjpxhnya.supabase.co:5432/postgres"
-    url = urlparse(url_to_use)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': url.path[1:],
-            'USER': url.username,
-            'PASSWORD': url.password,
-            'HOST': url.hostname,
-            'PORT': url.port or 5432,
-            'OPTIONS': {
-                'sslmode': 'require',
-            }
-        }
-    }
-else:
-    # Só usa o SQLite se estiver rodando localmente no seu PC SEM a variável configurada
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-# ==============================================================================
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
