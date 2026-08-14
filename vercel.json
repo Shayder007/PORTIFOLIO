@@ -10,5 +10,10 @@
       "src": "/(.*)",
       "dest": "core/wsgi.py"
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "DJANGO_SETTINGS_MODULE": "core.settings"
+    }
+  }
 }

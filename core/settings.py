@@ -59,22 +59,39 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # ==============================================================================
-# CONFIGURAÇÃO DO BANCO DE DADOS (SUPABASE POOLER OFICIAL)
+# CONFIGURAÇÃO DE BANCO DE DADOS HÍBRIDA E SEGURA (Vercel + Supabase Pooler)
 # ==============================================================================
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres.wtoqdrvacljjqjpxhnya', # Formato correto com o ID do projeto
-        'PASSWORD': 'HunterxHunter90',
-        'HOST': '://supabase.com', # Servidor Pooler da AWS muito mais estável
-        'PORT': '6543', # Porta do pooler obrigatória
-        'OPTIONS': {
-            'sslmode': 'require',
+DATABASE_CONN_URL = os.environ.get('DATABASE_URL')
+
+# Se estiver rodando no Vercel (Produção)
+if os.environ.get('VERCEL') or DATABASE_CONN_URL:
+    url_to_use = DATABASE_CONN_URL or "postgresql://postgres.wtoqdrvacljjqjpxhnya:HunterxHunter90@://supabase.com"
+    url = urlparse(url_to_use)
+    
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': url.path[1:],
+            'USER': url.username,
+            'PASSWORD': url.password,
+            'HOST': url.hostname,
+            'PORT': url.port or 6543,
+            'OPTIONS': {
+                'sslmode': 'require',
+            }
         }
     }
-}
+else:
+    # Se você estiver rodando no seu computador (Ambiente Local), usa o SQLite
+    # Isso limpa a memória do terminal e remove o erro "://supabase.com"
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 # ==============================================================================
+
 
 
 
