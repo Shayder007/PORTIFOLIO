@@ -4,9 +4,16 @@ from decouple import config
 from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Modifique o topo do seu settings.py para ficar assim:
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or config('SECRET_KEY', default='django-insecure-fallback-key-for-dev')
 
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-fallback-key-for-dev')
-DEBUG = config('DEBUG', default=False, cast=bool)
+# Força o DEBUG como False no Vercel, e respeita o .env apenas no seu computador
+if os.environ.get('VERCEL'):
+    DEBUG = False
+    ALLOWED_HOSTS = ['*'] # Permite que o Vercel mapeie seus domínios automaticamente
+else:
+    DEBUG = config('DEBUG', default=True, cast=bool)
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # Adicionados os domínios do Vercel e localhost por padrão de segurança
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,.vercel.app').split(',')
